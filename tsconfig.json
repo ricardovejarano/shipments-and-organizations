@@ -8,7 +8,7 @@
         "module": "CommonJS",
         "moduleResolution": "Node",
         "noImplicitAny": true,
-        "outDir": ".build",
+        "outDir": "dist",
         "preserveConstEnums": true,
         "resolveJsonModule": true,
         "rootDir": ".",
