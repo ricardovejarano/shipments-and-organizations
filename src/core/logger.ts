@@ -1,12 +1,12 @@
+import { LoggerDefinition } from '../interfaces/logger.interface';
 import winston from 'winston';
+import { injectable } from 'inversify';
 
-export class Logger {
-    private name: string;
-    constructor(name: string) {
-        this.name = name;
-    }
+@injectable()
+export class Logger implements LoggerDefinition {
+    constructor() {}
 
-    public getLogger(): winston.Logger {
+    public getLogger(serviceName: string): winston.Logger {
         const logger = winston.createLogger({
             level: 'info',
             format: winston.format.combine(
@@ -15,7 +15,7 @@ export class Logger {
                   return `[${timestamp}] ${service} ${level}: ${message}`;
                 })
             ),
-            defaultMeta: { service: this.name },
+            defaultMeta: { service: serviceName },
             transports: [
                 new winston.transports.File({
                   dirname: "logs",

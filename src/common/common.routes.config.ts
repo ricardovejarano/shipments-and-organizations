@@ -1,13 +1,15 @@
 import express from 'express';
+import { inject } from 'inversify';
+import { SERVICE_TYPES } from '../types';
+import winston from 'winston';
 export abstract class CommonRoutesConfig {
-    app: express.Application;
-    name: string;
 
-    constructor(app: express.Application, name: string) {
-        this.app = app;
-        this.name = name;
-        this.configureRoutes();
+    private logger: winston.Logger;
+
+    constructor(@inject(SERVICE_TYPES.Logger) private winstonLogger?: winston.Logger) {
+        this.logger = winstonLogger!;
+        this.logger.info('CommonRoutesConfig constructor set');
     }
     
-    abstract configureRoutes(): express.Application;
+    abstract configureRoutes(app: express.Application): express.Application;
 }

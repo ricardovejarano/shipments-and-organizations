@@ -1,5 +1,12 @@
-export class Shipment {
+import { ShipmentServiceDefinition } from "../interfaces/shipment.interface";
+import { injectable } from "inversify";
+
+@injectable()
+export class ShipmentService implements ShipmentServiceDefinition {
     constructor() {
-        console.log('Hey shipment already created');
+    }
+
+    public getShipmentById(): any[] {
+        return ['']
     }
 }
