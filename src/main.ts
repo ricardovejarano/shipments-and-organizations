@@ -6,25 +6,25 @@ import { Logger } from './core/logger';
 import { SERVICE_TYPES } from "./types";
 import { inject, injectable } from "inversify";
 import { MainDefinition } from "./interfaces/main.interface";
-import { ShipmentRoutes } from './routes/shipment.routes';
-import { OrganizationRoutes } from './routes/organization.routes';
+import { ShipmenController } from './controllers/shipment.controller';
+import { OrganizationController } from './controllers/organization.controller';
 import { PrismaClient } from '@prisma/client';
 
 @injectable()
 export class Main implements MainDefinition {
   private logger: winston.Logger;
-  private shipmentRoutes: ShipmentRoutes;
-  private organizationRoutes: OrganizationRoutes;
+  private shipmentController: ShipmenController;
+  private organizationController: OrganizationController;
   private repository: PrismaClient;
 
   constructor(
     @inject(SERVICE_TYPES.Logger) winstonLogger: Logger,
-    @inject(SERVICE_TYPES.ShipmentRoutes) shipmentRoutes: ShipmentRoutes,
-    @inject(SERVICE_TYPES.OrganizationRoutes) organizationRoutes: OrganizationRoutes,
+    @inject(SERVICE_TYPES.ShipmentController) shipmentController: ShipmenController,
+    @inject(SERVICE_TYPES.OrganizationController) organizationController: OrganizationController,
   ) {
     this.logger = winstonLogger.getLogger(`[${Main.name}]`);
-    this.shipmentRoutes = shipmentRoutes;
-    this.organizationRoutes = organizationRoutes;
+    this.shipmentController = shipmentController;
+    this.organizationController = organizationController;
     this.repository = new PrismaClient();
   }
 
@@ -33,8 +33,8 @@ export class Main implements MainDefinition {
     let app: express.Application = express();
     app.use(bodyParser.json());
     const port = process.env.PORT ?? 3000;
-    this.shipmentRoutes.configureRoutes(app);
-    this.organizationRoutes.configureRoutes(app);
+    this.shipmentController.configureRoutes(app);
+    this.organizationController.configureRoutes(app);
     await this.repository.$connect();
     this.logger.info(`Database running 📊`);
   

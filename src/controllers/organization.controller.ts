@@ -1,13 +1,13 @@
 import express from 'express';
 import winston from 'winston';
-import { RouteDefinition } from '../interfaces/route.interface';
+import { ControllerDefinition } from '../interfaces/controller.interface';
 import { Logger } from '../core/logger';
 import { SERVICE_TYPES } from '../types';
 import { inject, injectable } from 'inversify';
 import { OrganizationService } from '../services/organization.service';
 
 @injectable()
-export class OrganizationRoutes implements RouteDefinition {
+export class OrganizationController implements ControllerDefinition {
     private logger: winston.Logger;
     private organizationService: OrganizationService;
 
@@ -15,7 +15,7 @@ export class OrganizationRoutes implements RouteDefinition {
         @inject(SERVICE_TYPES.Logger) winstonLogger: Logger,
         @inject(SERVICE_TYPES.OrganizationService) organizationService: OrganizationService
     ) {
-        this.logger = winstonLogger.getLogger(`[${OrganizationRoutes.name}]`);
+        this.logger = winstonLogger.getLogger(`[${OrganizationController.name}]`);
         this.organizationService = organizationService;
     }
 

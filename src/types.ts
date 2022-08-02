@@ -3,7 +3,7 @@ export const SERVICE_TYPES = {
     ShipmentService: Symbol.for('ShipmentService'),
     OrganizationService: Symbol.for('OrganizationService'),
     Logger: Symbol.for('Logger'),
-    ShipmentRoutes: Symbol.for('ShipmentRoutes'),
-    OrganizationRoutes: Symbol.for('OrganizationRoutes'),
+    ShipmentController: Symbol.for('ShipmentController'),
+    OrganizationController: Symbol.for('OrganizationController'),
     DatabaseService: Symbol.for('DatabaseService'),
 };

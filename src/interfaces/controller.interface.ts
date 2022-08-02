@@ -1,5 +1,5 @@
 import express from 'express';
 
-export interface RouteDefinition {
+export interface ControllerDefinition {
     configureRoutes(app: express.Application): express.Application;
 }
