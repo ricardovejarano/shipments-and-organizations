@@ -1,4 +1,4 @@
-import express from 'express';
+/*import express from 'express';
 import bodyParser from "body-parser";
 
 const app = express()
@@ -19,4 +19,4 @@ app.get('/organizations/:organizationId', (req: any, res: any) => {
 
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)
-})
+})*/
