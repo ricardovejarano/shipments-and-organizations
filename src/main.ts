@@ -8,12 +8,19 @@ import { SERVICE_TYPES } from "./types";
 import winston from "winston";
 import { inject, injectable } from "inversify";
 import { MainDefinition } from "./interfaces/main.interface";
+import { ShipmentRoutes } from './routes/shipment.routes';
 
 @injectable()
 export class Main implements MainDefinition {
   private logger: winston.Logger;
-  constructor(@inject(SERVICE_TYPES.Logger) winstonLogger: Logger) {
+  private shipmentRoutes: ShipmentRoutes;
+
+  constructor(
+    @inject(SERVICE_TYPES.Logger) winstonLogger: Logger,
+    @inject(SERVICE_TYPES.ShipmentRoutes) shipmentRoutes: ShipmentRoutes,
+  ) {
     this.logger = winstonLogger.getLogger(`[${Main.name}]`);
+    this.shipmentRoutes = shipmentRoutes;
   }
 
   public bootstrap(): void {
@@ -21,7 +28,7 @@ export class Main implements MainDefinition {
     let app: express.Application = express();
     app.use(bodyParser.json());
     const port = process.env.PORT ?? 3000;
-    
+    this.shipmentRoutes.configureRoutes(app);
     // const shipmentRoutes = new ShipmentRoutes();
     // shipmentRoutes.configureRoutes(app);
   

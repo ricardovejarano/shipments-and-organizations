@@ -1,9 +1,16 @@
 import express from 'express';
-import { CommonRoutesConfig } from '../common/common.routes.config';
+import { SERVICE_TYPES } from '../types';
+import { Logger } from '../core/logger';
+import { RouteDefinition } from '../interfaces/route.interface';
+import winston from 'winston';
+import { inject, injectable } from 'inversify';
 
-export class ShipmentRoutes extends CommonRoutesConfig {
-    constructor() {
-        super();
+@injectable()
+export class ShipmentRoutes implements RouteDefinition {
+    private logger: winston.Logger;
+    
+    constructor(@inject(SERVICE_TYPES.Logger) winstonLogger: Logger) {
+        this.logger = winstonLogger.getLogger(`[${ShipmentRoutes.name}]`);
     }
 
     public configureRoutes(app: express.Application): express.Application {
@@ -15,6 +22,7 @@ export class ShipmentRoutes extends CommonRoutesConfig {
             res.send('Hello World from shipments!');
         });
 
+        this.logger.info('routes for shipments configured');
         return app;
     }
 }
