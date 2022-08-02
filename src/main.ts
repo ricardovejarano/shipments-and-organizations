@@ -18,9 +18,9 @@ export class Main implements MainDefinition {
 
   public bootstrap(): void {
     this.logger.info('🛠️  Starting application... ');
-    let app: express.Application = express()
+    let app: express.Application = express();
     app.use(bodyParser.json());
-    const port = 3000
+    const port = process.env.PORT ?? 3000;
     
     // const shipmentRoutes = new ShipmentRoutes();
     // shipmentRoutes.configureRoutes(app);
