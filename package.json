@@ -7,6 +7,7 @@
     "start": "ts-node ./index.ts",
     "start:dev": "nodemon ./index.ts",
     "db:up": "docker-compose up -d",
+    "db:migrate": "prisma migrate dev --schema ./prisma/schema.prisma",
     "send": "ts-node ./send-events.ts",
     "lint": "eslint . --ext .ts",
     "lintf:ix": "eslint . --ext .ts —-fix",
@@ -15,6 +16,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@prisma/client": "^4.1.1",
     "body-parser": "^1.19.0",
     "dotenv": "^16.0.1",
     "express": "^4.17.1",
