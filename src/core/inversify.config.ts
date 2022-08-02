@@ -10,11 +10,14 @@ import { MainDefinition } from '../interfaces/main.interface';
 import { RouteDefinition } from '../interfaces/route.interface';
 import { ShipmentRoutes } from '../routes/shipment.routes';
 import { OrganizationRoutes } from '../routes/organization.routes';
+import { OrganizationService } from '../services/organization.service';
+import { OrganizationServiceDefinition } from '../interfaces/organization.interface';
 
 
 export const container = new Container();
 container.bind<MainDefinition>(SERVICE_TYPES.Main).to(Main);
 container.bind<LoggerDefinition>(SERVICE_TYPES.Logger).to(Logger);
 container.bind<ShipmentServiceDefinition>(SERVICE_TYPES.ShipmentService).to(ShipmentService);
+container.bind<OrganizationServiceDefinition>(SERVICE_TYPES.OrganizationService).to(OrganizationService);
 container.bind<RouteDefinition>(SERVICE_TYPES.ShipmentRoutes).to(ShipmentRoutes);
 container.bind<RouteDefinition>(SERVICE_TYPES.OrganizationRoutes).to(OrganizationRoutes);
