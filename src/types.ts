@@ -4,4 +4,5 @@ export const SERVICE_TYPES = {
     Logger: Symbol.for('Logger'),
     ShipmentRoutes: Symbol.for('ShipmentRoutes'),
     OrganizationRoutes: Symbol.for('OrganizationRoutes'),
+    DatabaseService: Symbol.for('DatabaseService'),
 };
