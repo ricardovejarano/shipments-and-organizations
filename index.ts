@@ -2,9 +2,12 @@ import express from 'express';
 import bodyParser from "body-parser";
 import { ShipmentRoutes } from './src/routes/shipment.routes';
 import { OrganizationRoutes } from './src/routes/organization.routes';
+import { Logger } from './src/core/logger';
 import 'dotenv/config'
 
 function bootstrap(): void {
+  const logger = new Logger('bootstrap').getLogger();
+  logger.info('Starting application');
   let app: express.Application = express()
   app.use(bodyParser.json());
   const port = 3000
