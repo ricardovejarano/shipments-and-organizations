@@ -2,6 +2,7 @@ import express from 'express';
 import bodyParser from "body-parser";
 import { ShipmentRoutes } from './src/routes/shipment.routes';
 import { OrganizationRoutes } from './src/routes/organization.routes';
+import 'dotenv/config'
 
 function bootstrap(): void {
   let app: express.Application = express()
