@@ -1,10 +1,16 @@
 import express from 'express';
+import winston from 'winston';
+import { RouteDefinition } from '../interfaces/route.interface';
+import { Logger } from '../core/logger';
+import { SERVICE_TYPES } from '../types';
+import { inject, injectable } from 'inversify';
 
-import { CommonRoutesConfig } from '../common/common.routes.config';
+@injectable()
+export class OrganizationRoutes implements RouteDefinition {
+    private logger: winston.Logger;
 
-export class OrganizationRoutes extends CommonRoutesConfig {
-    constructor() {
-        super();
+    constructor(@inject(SERVICE_TYPES.Logger) winstonLogger: Logger) {
+        this.logger = winstonLogger.getLogger(`[${OrganizationRoutes.name}]`);
     }
 
     configureRoutes(app: express.Application): express.Application {
@@ -16,6 +22,7 @@ export class OrganizationRoutes extends CommonRoutesConfig {
             res.send('Hello World from organizations!');
         });
 
+        this.logger.info('routes for organizations successfully configured ✅');
         return app;
     }
 }

@@ -1,26 +1,28 @@
-import express from 'express';
-import bodyParser from "body-parser";
-// import { ShipmentRoutes } from './routes/shipment.routes';
-// import { OrganizationRoutes } from './routes/organization.routes';
-import { Logger } from './core/logger';
 import 'dotenv/config';
-import { SERVICE_TYPES } from "./types";
+import bodyParser from "body-parser";
+import express from 'express';
 import winston from "winston";
+import { Logger } from './core/logger';
+import { SERVICE_TYPES } from "./types";
 import { inject, injectable } from "inversify";
 import { MainDefinition } from "./interfaces/main.interface";
 import { ShipmentRoutes } from './routes/shipment.routes';
+import { OrganizationRoutes } from './routes/organization.routes';
 
 @injectable()
 export class Main implements MainDefinition {
   private logger: winston.Logger;
   private shipmentRoutes: ShipmentRoutes;
+  private organizationRoutes: OrganizationRoutes;
 
   constructor(
     @inject(SERVICE_TYPES.Logger) winstonLogger: Logger,
     @inject(SERVICE_TYPES.ShipmentRoutes) shipmentRoutes: ShipmentRoutes,
+    @inject(SERVICE_TYPES.OrganizationRoutes) organizationRoutes: OrganizationRoutes,
   ) {
     this.logger = winstonLogger.getLogger(`[${Main.name}]`);
     this.shipmentRoutes = shipmentRoutes;
+    this.organizationRoutes = organizationRoutes;
   }
 
   public bootstrap(): void {
@@ -29,14 +31,10 @@ export class Main implements MainDefinition {
     app.use(bodyParser.json());
     const port = process.env.PORT ?? 3000;
     this.shipmentRoutes.configureRoutes(app);
-    // const shipmentRoutes = new ShipmentRoutes();
-    // shipmentRoutes.configureRoutes(app);
-  
-    // const organizationRoutes = new OrganizationRoutes();
-    // organizationRoutes.configureRoutes(app);
+    this.organizationRoutes.configureRoutes(app);
   
     app.listen(port, () => {
-      this.logger.info(`Example app listening at http://localhost:${port}`);
+      this.logger.info(`App listening at http://localhost:${port} 🎉`);
     });
   }
 }

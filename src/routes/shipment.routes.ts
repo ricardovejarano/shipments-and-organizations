@@ -1,8 +1,8 @@
 import express from 'express';
+import winston from 'winston';
 import { SERVICE_TYPES } from '../types';
 import { Logger } from '../core/logger';
 import { RouteDefinition } from '../interfaces/route.interface';
-import winston from 'winston';
 import { inject, injectable } from 'inversify';
 
 @injectable()
@@ -22,7 +22,7 @@ export class ShipmentRoutes implements RouteDefinition {
             res.send('Hello World from shipments!');
         });
 
-        this.logger.info('routes for shipments configured');
+        this.logger.info('routes for shipments successfully configured ✅');
         return app;
     }
 }
