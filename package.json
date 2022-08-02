@@ -6,6 +6,7 @@
   "scripts": {
     "start": "ts-node ./index.ts",
     "start:dev": "nodemon ./index.ts",
+    "db:up": "docker-compose up -d",
     "send": "ts-node ./send-events.ts",
     "lint": "eslint . --ext .ts",
     "lintf:ix": "eslint . --ext .ts —-fix",
@@ -34,6 +35,7 @@
     "eslint-plugin-import": "^2.26.0",
     "nodemon": "^2.0.19",
     "prettier": "^2.7.1",
+    "prisma": "^4.1.1",
     "ts-node": "^10.1.0",
     "typescript": "^4.3.5"
   }
