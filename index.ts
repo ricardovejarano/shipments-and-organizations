@@ -7,7 +7,7 @@ import 'dotenv/config'
 
 function bootstrap(): void {
   const logger = new Logger('bootstrap').getLogger();
-  logger.info('Starting application');
+  logger.info('🛠️  Starting application... ');
   let app: express.Application = express()
   app.use(bodyParser.json());
   const port = 3000
@@ -19,7 +19,7 @@ function bootstrap(): void {
   organizationRoutes.configureRoutes();
 
   app.listen(port, () => {
-    console.log(`Example app listening at http://localhost:${port}`)
+    logger.info(`Example app listening at http://localhost:${port}`);
   });
 }
 

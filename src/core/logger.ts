@@ -24,13 +24,15 @@ export class Logger {
               ],
           });
           
-          //
-          // If we're not in production then log to the `console` with the format:
-          // `${info.level}: ${info.message} JSON.stringify({ ...rest }) `
-          //
+          // for non production env, log to the `console` 
           if (process.env.NODE_ENV !== 'production') {
             logger.add(new winston.transports.Console({
-              format: winston.format.simple(),
+                format: winston.format.combine(
+                    winston.format.timestamp(),
+                    winston.format.printf(({ timestamp, level, message, service }) => {
+                    return `[${timestamp}] ${service} ${level}: ${message}`;
+                    }),
+                ),
             }));
           }
         return logger;
