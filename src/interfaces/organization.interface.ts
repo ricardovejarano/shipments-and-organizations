@@ -1,3 +1,5 @@
+import { Organization } from "src/types/types";
+
 export interface OrganizationServiceDefinition {
-    test(): void; 
+    saveOrganization(organization: Organization): void
 }

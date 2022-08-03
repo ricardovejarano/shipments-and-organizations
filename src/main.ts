@@ -30,7 +30,7 @@ export class Main implements MainDefinition {
 
   public async bootstrap(): Promise<void> {
     this.logger.info('🛠️  Starting application... ');
-    let app: express.Application = express();
+    const app: express.Application = express();
     app.use(bodyParser.json());
     const port = process.env.PORT ?? 3000;
     this.shipmentController.configureRoutes(app);
