@@ -22,8 +22,7 @@ export class OrganizationController implements ControllerDefinition {
 
     configureRoutes(app: express.Application): express.Application {
         
-        app.post('/organization', (req: any, res: any) => {
-            this.logger.info('🗄️ Processing request to save Organization');
+        app.post('/organization', async (req: any, res: any) => {
             if(!req.body.id || !req.body.code) {
                 this.logger.warn('⚠️ Missing id or code.  Unable to create/update Organization');
                 res.status(400).send('Bad Request'); // TODO: validate response;
@@ -34,8 +33,16 @@ export class OrganizationController implements ControllerDefinition {
                 code: req.body.code,
             }
 
-            this.organizationService.saveOrganization(organization);
-            res.status(200).send('Organization successfully saved');
+            this.logger.info(`🗄️ Processing request to save Organization ${organization.orgId}`);
+
+            try {
+                await this.organizationService.createOrUpdateOrganization(organization);
+                this.logger.info(`💾 Organization ${organization.orgId} successfully processed`);
+                res.status(200).send('Organization successfully processed');
+            } catch(e) {
+                this.logger.error(`⚠️ Error saving Organization: ${e}`);
+                res.status(500).send('Internal Server Error'); // TODO: modify responses
+            }
         });
         
         app.get('/organizations/:organizationId', (req: any, res: any) => {
