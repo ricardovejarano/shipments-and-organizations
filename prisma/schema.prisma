@@ -7,8 +7,29 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id    Int     @default(autoincrement()) @id
-  email String  @unique
-  name  String?
+model Organization {
+  id        Int      @default(autoincrement()) @id
+  orgId     String   @unique
+  code      String  
+  shipment  OrganizationsOnShipments[]
+
+}
+
+model Shipment {
+  id                   Int       @default(autoincrement()) @id
+  referenceId          String    @unique
+  estimatedTimeArrival DateTime?
+  organization         OrganizationsOnShipments[]
+}
+
+model OrganizationsOnShipments {
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  shipment             Shipment @relation(fields: [shipmentId], references: [referenceId])
+  shipmentId          String
+  organization         Organization @relation(fields: [organizationId], references: [orgId])
+  organizationCode     String
+  organizationId       String
+
+  @@id([shipmentId, organizationId])
 }
