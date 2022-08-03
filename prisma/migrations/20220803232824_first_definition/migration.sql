@@ -1,5 +1,7 @@
 -- CreateTable
 CREATE TABLE "Organization" (
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
     "id" SERIAL NOT NULL,
     "orgId" TEXT NOT NULL,
     "code" TEXT NOT NULL,
@@ -9,6 +11,8 @@ CREATE TABLE "Organization" (
 
 -- CreateTable
 CREATE TABLE "Shipment" (
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
     "id" SERIAL NOT NULL,
     "referenceId" TEXT NOT NULL,
     "estimatedTimeArrival" TIMESTAMP(3),

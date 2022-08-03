@@ -8,6 +8,8 @@ datasource db {
 }
 
 model Organization {
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   id        Int      @default(autoincrement()) @id
   orgId     String   @unique
   code      String  
@@ -16,6 +18,8 @@ model Organization {
 }
 
 model Shipment {
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
   id                   Int       @default(autoincrement()) @id
   referenceId          String    @unique
   estimatedTimeArrival DateTime?
@@ -23,10 +27,10 @@ model Shipment {
 }
 
 model OrganizationsOnShipments {
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
-  shipment             Shipment @relation(fields: [shipmentId], references: [referenceId])
-  shipmentId          String
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
+  shipment             Shipment     @relation(fields: [shipmentId], references: [referenceId])
+  shipmentId           String
   organization         Organization @relation(fields: [organizationId], references: [orgId])
   organizationCode     String
   organizationId       String
