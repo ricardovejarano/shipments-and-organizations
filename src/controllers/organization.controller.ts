@@ -23,9 +23,9 @@ export class OrganizationController implements ControllerDefinition {
     configureRoutes(app: express.Application): express.Application {
         
         app.post('/organization', (req: any, res: any) => {
-            this.logger.info('🗄️ Processing request to save organization');
+            this.logger.info('🗄️ Processing request to save Organization');
             if(!req.body.id || !req.body.code) {
-                this.logger.warn('⚠️ Missing id or code.  Unable to create/update organization');
+                this.logger.warn('⚠️ Missing id or code.  Unable to create/update Organization');
                 res.status(400).send('Bad Request'); // TODO: validate response;
             }
 

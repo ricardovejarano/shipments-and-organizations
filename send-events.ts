@@ -12,10 +12,13 @@ async function main() {
         try {
             await axios.post(`http://localhost:3000/${endpoint}`, message)
         } catch (error) {
+            // eslint-disable-next-line no-console
             console.error(error.code)
         }
-
     }
+
+    // eslint-disable-next-line no-console
+    console.log('✅ All messages sent');
 }
 
 main()
