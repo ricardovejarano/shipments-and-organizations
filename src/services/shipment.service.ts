@@ -5,15 +5,21 @@ import { Logger } from '../core/logger';
 import { SERVICE_TYPES } from '../types';
 import { Node, Organization, Shipment } from '../types/types';
 import { PrismaClient } from '@prisma/client';
+import { WeightConverterService, WeightUnit } from './weight-converter.service';
 
 @injectable()
 export class ShipmentService implements ShipmentServiceDefinition {
     private logger: winston.Logger;
     private repository: PrismaClient;
+    private weightConverterService: WeightConverterService;
 
-    constructor(@inject(SERVICE_TYPES.Logger) winstonLogger: Logger) {
+    constructor(
+        @inject(SERVICE_TYPES.Logger) winstonLogger: Logger,
+        @inject(SERVICE_TYPES.WeightConverterService) weightConverterService: WeightConverterService
+    ) {
         this.logger = winstonLogger.getLogger(`[${ShipmentService.name}]`);
         this.repository = new PrismaClient();
+        this.weightConverterService = weightConverterService;
     }
 
     public async getShipmentById(shipmentId: string): Promise<Shipment | undefined> {
@@ -75,17 +81,17 @@ export class ShipmentService implements ShipmentServiceDefinition {
         return record?.estimatedTimeArrival ?? undefined;
     }
 
-    public async getTotalWeight(shipmentId: string, units: string): Promise<number> {
+    public async getTotalWeight(shipmentId: string, outputUnit: WeightUnit): Promise<number> {
         const record = await this.repository.transportPacks.findMany({
             where: { shipmentId },
             select: { weight: true, unit: true },
         });
 
-        if(!record) {
-            return 0;
-        }
+        const totalWeight = record.reduce((acc, { weight, unit }) => {
+            return acc + this.weightConverterService.convert(weight, unit as WeightUnit, outputUnit);
+        }, 0);
 
-        return 1;
+        return totalWeight;
     }
 
     public async createOrUpdateShipment(shipment: Shipment): Promise<void> {
@@ -162,7 +168,7 @@ export class ShipmentService implements ShipmentServiceDefinition {
             }
         });
 
-        // same here... Avoid duplicates
+        // to avoid duplicates 
         if(record) {
             this.logger.info(`ℹ️  Transport pack with weight ${node.totalWeight.weight} ${node.totalWeight.unit} is already recorded on shipment ${shipmentId}`);
             return;
