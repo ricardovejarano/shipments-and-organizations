@@ -6,7 +6,7 @@
   "scripts": {
     "start": "ts-node ./index.ts",
     "start:dev": "nodemon ./index.ts",
-    "db:up": "docker-compose up -d",
+    "db:up": "docker-compose -p logixboard up -d",
     "db:migrate": "prisma migrate dev --schema ./prisma/schema.prisma",
     "send": "ts-node ./send-events.ts",
     "lint": "eslint . --ext .ts",

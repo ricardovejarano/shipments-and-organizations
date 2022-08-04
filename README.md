@@ -1,3 +1,13 @@
+# How to run
+
+## Make shure you have Docker installed
+## Install dependencies
+> npm i 
+
+### Start DB
+> npm run db:up
+> npm run db:migrate
+
 # Logixboard Backend Engineering Take-Home Challenge
 
 Thanks for applying to Logixboard! The next step in our process is a coding challenge. Our goals

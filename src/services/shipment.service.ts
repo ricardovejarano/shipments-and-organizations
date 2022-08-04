@@ -28,6 +28,7 @@ export class ShipmentService implements ShipmentServiceDefinition {
             },
             update: {
                 estimatedTimeArrival: shipment.estimatedTimeArrival,
+                currentOrganizationCodes: shipment.organizations.join(','),
             }
         });
 
