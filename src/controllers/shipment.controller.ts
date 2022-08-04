@@ -87,30 +87,30 @@ export class ShipmenController implements ControllerDefinition {
                 const timeArrival = await this.shipmentService.getEstimatedTimeArrival( req.params.shipmentId );
                 res.send({ estimatedTimeArrival: timeArrival ?? 'unknown' });
             } catch(e) {
-                this.logger.error(`⚠️ Error getting time a rrival ${req.params.shipmentId}: ${e}`);
+                this.logger.error(`⚠️ Error getting time arrival ${req.params.shipmentId}: ${e}`);
                 res.status(500).send('Internal Server Error'); // TODO: modify responses
             }
         });
 
-        app.get('/shipments/total-weight', async (req: any, res: any) => {
-            const shipmentId = req.query.shipmentId;
-            const units = req.query.units;
-
-            if(!shipmentId || !units) {
-                this.logger.warn('⚠️ Missing shipmentId or units.  Unable to get total weight');
-                res.status(400).send('Bad Request'); // TODO: validate response;
-            }
-
-            if (!Object.values(WeightUnit).includes(units)) {
-                this.logger.warn(`⚠️ Invalid units ${units}.  Unable to get total weight`);
-                res.status(400).send('Bad Request'); // TODO: validate response;
-            }
+        app.get('/shipments/shipment-weight/:shipmentId/:units', async (req: any, res: any) => {
+            const shipmentId = req.params.shipmentId;
+            const units = req.params.units;
 
             try {
-                const timeArrival = await this.shipmentService.getEstimatedTimeArrival( req.params.shipmentId );
-                res.send({ estimatedTimeArrival: timeArrival ?? 'unknown' });
+                if(!shipmentId || !units) {
+                    this.logger.warn('⚠️ Missing shipmentId or units.  Unable to get total weight');
+                    throw new Error('Missing shipmentId or units');
+                }
+    
+                if (!Object.values(WeightUnit).includes(units)) {
+                    this.logger.warn(`⚠️ Invalid units ${units}.  Unable to get total weight`);
+                    throw new Error('Invalid units');
+                }
+
+                const totalWeight = await this.shipmentService.getShipmentWeight(shipmentId, units);
+                res.status(400).send({ totalWeight: totalWeight , units });
             } catch(e) {
-                this.logger.error(`⚠️ Error getting time a rrival ${req.params.shipmentId}: ${e}`);
+                this.logger.error(`⚠️ Error getting total weight ${req.params.shipmentId}: ${e}`);
                 res.status(500).send('Internal Server Error'); // TODO: modify responses
             }
         });

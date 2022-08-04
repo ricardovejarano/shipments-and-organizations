@@ -81,14 +81,14 @@ export class ShipmentService implements ShipmentServiceDefinition {
         return record?.estimatedTimeArrival ?? undefined;
     }
 
-    public async getTotalWeight(shipmentId: string, outputUnit: WeightUnit): Promise<number> {
+    public async getShipmentWeight(shipmentId: string, outputUnit: WeightUnit): Promise<number> {
         const record = await this.repository.transportPacks.findMany({
             where: { shipmentId },
             select: { weight: true, unit: true },
         });
 
         const totalWeight = record.reduce((acc, { weight, unit }) => {
-            return acc + this.weightConverterService.convert(weight, unit as WeightUnit, outputUnit);
+            return acc + this.weightConverterService.convert(weight, unit.toLocaleLowerCase() as WeightUnit, outputUnit);
         }, 0);
 
         return totalWeight;

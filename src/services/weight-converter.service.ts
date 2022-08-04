@@ -59,11 +59,11 @@ export class WeightConverterService implements WeightConverterDefinition {
     }
 
     private kilogramsToGrams(kg: number): number {
-        return kg * 35.274;
+        return kg * 1000
     }
 
     private kilogramsToStones(kg: number): number {
-        return kg * 2.2046;
+        return kg * 0.1574;
     }
 
     private fromOunces(weight: number, unit: WeightUnit): number {
