@@ -32,12 +32,12 @@ export class ShipmentService implements ShipmentServiceDefinition {
             }
         });
 
-        if(shipment.organizations.length === 0) {
-            return;
-        }
+        // await Promise.all(shipment.organizations.map(organizationCode => this.createOrganizationOnShipment(organizationCode, shipment.referenceId)));
+        // await Promise.all(shipment.transportPacks.nodes.map(node => this.createTransportPacks(node, shipment.referenceId))); // check ounces
 
         await Promise.all(shipment.organizations.map(organizationCode => this.createOrganizationOnShipment(organizationCode, shipment.referenceId)));
-        await Promise.all(shipment.transportPacks.nodes.map(node => this.createTransportPacks(node, shipment.referenceId))); // check ounces
+
+        await Promise.all(shipment.transportPacks.nodes.map(node => this.createTransportPacks(node, shipment.referenceId))); 
 
     }
 
@@ -90,12 +90,27 @@ export class ShipmentService implements ShipmentServiceDefinition {
     }
 
     private async createTransportPacks(node: Node, shipmentId: string): Promise<void> {
+        const record = await this.repository.transportPacks.findFirst({
+            where: {
+                AND: [
+                    { shipmentId },
+                    { weight: node.totalWeight.weight },
+                    { unit: node.totalWeight.unit },
+                ]
+            }
+        });
+
+        if(record) {
+            this.logger.info(`ℹ️ Transport pack with weight ${node.totalWeight.weight} ${node.totalWeight.unit} is already recorded on shipment ${shipmentId}`);
+            return;
+        }
+
         await this.repository.transportPacks.create({
             data: {
                shipmentId,
                weight: node.totalWeight.weight,
                unit: node.totalWeight.unit,
             }
-        })
+        });
     }
 }
