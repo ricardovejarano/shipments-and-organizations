@@ -69,7 +69,16 @@ export class ShipmenController implements ControllerDefinition {
                 this.logger.error(`⚠️ Error getting Organizations on Shipment ${req.params.shipmentId}: ${e}`);
                 res.status(500).send('Internal Server Error'); // TODO: modify responses
             }
-            
+        });
+
+        app.get('/shipments/organizations-with-code/:shipmentId', async (req: any, res: any) => {
+            try {
+                const organizationsOnShipment = await this.shipmentService.getOrganizationsWithCodeOnShipment( req.params.shipmentId );
+                res.send(organizationsOnShipment);
+            } catch(e) {
+                this.logger.error(`⚠️ Error getting Organizations with Coupon on Shipment ${req.params.shipmentId}: ${e}`);
+                res.status(500).send('Internal Server Error'); // TODO: modify responses
+            }
         });
 
         this.logger.info('routes for shipments successfully configured ✅');

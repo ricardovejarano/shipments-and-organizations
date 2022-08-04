@@ -3,7 +3,7 @@ import { ShipmentServiceDefinition } from "../interfaces/shipment.interface";
 import { inject, injectable } from "inversify";
 import { Logger } from '../core/logger';
 import { SERVICE_TYPES } from '../types';
-import { Node, Shipment } from '../types/types';
+import { Node, Organization, Shipment } from '../types/types';
 import { PrismaClient } from '@prisma/client';
 
 @injectable()
@@ -79,6 +79,18 @@ export class ShipmentService implements ShipmentServiceDefinition {
         const keys = record.map(({ organizationId }) => organizationId);
 
         return [...new Set(keys)];
+    }
+
+    public async getOrganizationsWithCodeOnShipment(shipmentId: string): Promise<Array<Organization>> {
+        const record = await this.repository.organizationsOnShipments.findMany({
+            where: { shipmentId },
+            select: {
+                organizationId: true,
+                organizationCode: true,
+            }
+        });
+
+        return record.map(({ organizationId, organizationCode }) => ({ orgId: organizationId, code: organizationCode }));
     }
 
     private async createOrganizationOnShipment(organizationCode: string, shipmentId: string): Promise<void> {
