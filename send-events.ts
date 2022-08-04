@@ -13,7 +13,7 @@ async function main() {
             await axios.post(`http://localhost:3000/${endpoint}`, message)
         } catch (error) {
             // eslint-disable-next-line no-console
-            console.error(error.code)
+            console.error(error) // TODO: add code back error.code
         }
     }
 

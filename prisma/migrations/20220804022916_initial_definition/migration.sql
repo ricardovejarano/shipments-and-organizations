@@ -16,19 +16,21 @@ CREATE TABLE "Shipment" (
     "id" SERIAL NOT NULL,
     "referenceId" TEXT NOT NULL,
     "estimatedTimeArrival" TIMESTAMP(3),
+    "currentOrganizationCodes" TEXT NOT NULL,
 
     CONSTRAINT "Shipment_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "OrganizationsOnShipments" (
+    "id" SERIAL NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "shipmentId" TEXT NOT NULL,
     "organizationCode" TEXT NOT NULL,
     "organizationId" TEXT NOT NULL,
 
-    CONSTRAINT "OrganizationsOnShipments_pkey" PRIMARY KEY ("shipmentId","organizationId")
+    CONSTRAINT "OrganizationsOnShipments_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex

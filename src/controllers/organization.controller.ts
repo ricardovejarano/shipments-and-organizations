@@ -40,7 +40,7 @@ export class OrganizationController implements ControllerDefinition {
                 this.logger.info(`💾 Organization ${organization.orgId} successfully processed`);
                 res.status(200).send('Organization successfully processed');
             } catch(e) {
-                this.logger.error(`⚠️ Error saving Organization: ${e}`);
+                this.logger.error(`⚠️ Error processing Organization ${organization.orgId}: ${e}`);
                 res.status(500).send('Internal Server Error'); // TODO: modify responses
             }
         });

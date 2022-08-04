@@ -18,15 +18,17 @@ model Organization {
 }
 
 model Shipment {
-  createdAt            DateTime  @default(now())
-  updatedAt            DateTime  @updatedAt
-  id                   Int       @default(autoincrement()) @id
-  referenceId          String    @unique
-  estimatedTimeArrival DateTime?
-  organization         OrganizationsOnShipments[]
+  createdAt                 DateTime  @default(now())
+  updatedAt                 DateTime  @updatedAt
+  id                        Int       @default(autoincrement()) @id
+  referenceId               String    @unique
+  estimatedTimeArrival      DateTime?
+  currentOrganizationCodes  String  
+  organization              OrganizationsOnShipments[]
 }
 
 model OrganizationsOnShipments {
+  id                   Int          @default(autoincrement()) @id
   createdAt            DateTime     @default(now())
   updatedAt            DateTime     @updatedAt
   shipment             Shipment     @relation(fields: [shipmentId], references: [referenceId])
@@ -34,6 +36,4 @@ model OrganizationsOnShipments {
   organization         Organization @relation(fields: [organizationId], references: [orgId])
   organizationCode     String
   organizationId       String
-
-  @@id([shipmentId, organizationId])
 }

@@ -5,6 +5,6 @@ export type Organization = {
 
 export type Shipment = {
     referenceId: string;
-    estimatedTimeArrival?: string;
+    estimatedTimeArrival?: Date;
     organizations: Array<string>;
 }

@@ -23,20 +23,27 @@ export class ShipmenController implements ControllerDefinition {
     public configureRoutes(app: express.Application): express.Application {
 
         app.post('/shipment', async (req: any, res: any) => {
-            this.logger.info('🗄️ Processing request to save Shipment');
+
             if(!req.body.referenceId) {
                 this.logger.warn('⚠️ Missing referenceId.  Unable to create/update Shipment');
                 res.status(400).send('Bad Request'); // TODO: validate response;
             }
-
+            const estimatedTimeArrival = req.body.estimatedTimeArrival ? new Date(req.body.estimatedTimeArrival) : undefined;
             const shipment: Shipment = {
                 referenceId: req.body.referenceId,
-                estimatedTimeArrival: req.body.estimatedTimeArrival,
+                estimatedTimeArrival,
                 organizations: req.body.organizations,
             }
 
-            this.shipmentService.createOrUpdateShipment(shipment);
-            res.status(200).send('Shipment successfully saved');
+            this.logger.info(`🗄️ Processing request for Shipment ${shipment.referenceId}`);
+            try {
+                await this.shipmentService.createOrUpdateShipment(shipment);
+                this.logger.info(`💾 Shipment ${shipment.referenceId} successfully processed`);
+                res.status(200).send('Shipment successfully saved');
+            } catch(e) {
+                this.logger.error(`⚠️ Error processing Shipment ${shipment.referenceId}: ${e}`);
+                res.status(500).send('Internal Server Error'); // TODO: modify responses
+            }
         });
         
         app.get('/shipments/:shipmentId', (req: any, res: any) => {
