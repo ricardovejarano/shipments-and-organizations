@@ -33,6 +33,7 @@ export class ShipmenController implements ControllerDefinition {
                 referenceId: req.body.referenceId,
                 estimatedTimeArrival,
                 organizations: req.body.organizations,
+                transportPacks: this.shipmentService.toTransportPacks(req.body.transportPacks),
             }
 
             this.logger.info(`🗄️ Processing request for Shipment ${shipment.referenceId}`);

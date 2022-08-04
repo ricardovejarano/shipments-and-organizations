@@ -25,6 +25,7 @@ model Shipment {
   estimatedTimeArrival      DateTime?
   currentOrganizationCodes  String  
   organization              OrganizationsOnShipments[]
+  transportPacks            TransportPacks[]
 }
 
 model OrganizationsOnShipments {
@@ -36,4 +37,14 @@ model OrganizationsOnShipments {
   organization         Organization @relation(fields: [organizationId], references: [orgId])
   organizationCode     String
   organizationId       String
+}
+
+model TransportPacks {
+  id                   Int          @default(autoincrement()) @id
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
+  shipment             Shipment     @relation(fields: [shipmentId], references: [referenceId])
+  shipmentId           String
+  weight               Int
+  unit                 String  
 }

@@ -3,7 +3,7 @@ import { ShipmentServiceDefinition } from "../interfaces/shipment.interface";
 import { inject, injectable } from "inversify";
 import { Logger } from '../core/logger';
 import { SERVICE_TYPES } from '../types';
-import { Shipment } from '../types/types';
+import { Node, Shipment, TransportPack } from '../types/types';
 import { PrismaClient } from '@prisma/client';
 
 @injectable()
@@ -36,11 +36,19 @@ export class ShipmentService implements ShipmentServiceDefinition {
         }
 
         await Promise.all(shipment.organizations.map(organizationCode => this.createOrganizationOnShipment(organizationCode, shipment.referenceId)));
+        await Promise.all(shipment.transportPacks.nodes.map(node => this.createTransportPacks(node, shipment.referenceId))); // check ounces
+
     }
 
     public getShipmentById(): any[] {
         this.logger.info('getShipmentById from in jected service');
         return ['']
+    }
+
+    public toTransportPacks(transportPacks: any): TransportPack { // TODO: do not use any
+        return {
+            nodes: transportPacks.nodes.map((node: any) => ({ totalWeight: { weight:Number(node.totalWeight.weight), unit: node.totalWeight.unit } }))
+        }
     }
 
     private async createOrganizationOnShipment(organizationCode: string, shipmentId: string): Promise<void> {
@@ -78,5 +86,15 @@ export class ShipmentService implements ShipmentServiceDefinition {
                 organizationCode,
             }
         });
+    }
+
+    private async createTransportPacks(node: Node, shipmentId: string): Promise<void> {
+        await this.repository.transportPacks.create({
+            data: {
+               shipmentId,
+               weight: node.totalWeight.weight,
+               unit: node.totalWeight.unit,
+            }
+        })
     }
 }
