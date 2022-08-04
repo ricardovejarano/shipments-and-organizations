@@ -16,32 +16,6 @@ export class ShipmentService implements ShipmentServiceDefinition {
         this.repository = new PrismaClient();
     }
 
-    public async createOrUpdateShipment(shipment: Shipment): Promise<void> {
-        await this.repository.shipment.upsert({
-            where: {
-                referenceId: shipment.referenceId,
-            },
-            create: {
-                referenceId: shipment.referenceId,
-                estimatedTimeArrival: shipment.estimatedTimeArrival,
-                currentOrganizationCodes: shipment.organizations.join(','),
-            },
-            update: {
-                estimatedTimeArrival: shipment.estimatedTimeArrival,
-                currentOrganizationCodes: shipment.organizations.join(','),
-            }
-        });
-
-        // create records for OrganizationsOnShipment and transportPacks associated with this shipment
-        await Promise.all(
-            [
-                shipment.organizations.map(organizationCode => this.createOrganizationOnShipment(organizationCode, shipment.referenceId)),
-                shipment.transportPacks.nodes.map(node => this.createTransportPacks(node, shipment.referenceId))
-            ]
-        );
-
-    }
-
     public async getShipmentById(shipmentId: string): Promise<Shipment | undefined> {
         const record = await this.repository.shipment.findFirst({
             where: { referenceId: shipmentId },
@@ -91,6 +65,39 @@ export class ShipmentService implements ShipmentServiceDefinition {
         });
 
         return record.map(({ organizationId, organizationCode }) => ({ orgId: organizationId, code: organizationCode }));
+    }
+
+    public async getEstimatedTimeArrival(shipmentId: string): Promise<Date | undefined> {
+        const record = await this.repository.shipment.findFirst({
+            where: { referenceId: shipmentId },
+            select: { estimatedTimeArrival: true },
+        });
+        return record?.estimatedTimeArrival ?? undefined;
+    }
+
+    public async createOrUpdateShipment(shipment: Shipment): Promise<void> {
+        await this.repository.shipment.upsert({
+            where: {
+                referenceId: shipment.referenceId,
+            },
+            create: {
+                referenceId: shipment.referenceId,
+                estimatedTimeArrival: shipment.estimatedTimeArrival,
+                currentOrganizationCodes: shipment.organizations.join(','),
+            },
+            update: {
+                estimatedTimeArrival: shipment.estimatedTimeArrival,
+                currentOrganizationCodes: shipment.organizations.join(','),
+            }
+        });
+
+        // create records for OrganizationsOnShipment and transportPacks associated with this shipment
+        await Promise.all(
+            [
+                shipment.organizations.map(organizationCode => this.createOrganizationOnShipment(organizationCode, shipment.referenceId)),
+                shipment.transportPacks.nodes.map(node => this.createTransportPacks(node, shipment.referenceId))
+            ]
+        );
     }
 
     private async createOrganizationOnShipment(organizationCode: string, shipmentId: string): Promise<void> {

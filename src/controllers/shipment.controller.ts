@@ -81,6 +81,16 @@ export class ShipmenController implements ControllerDefinition {
             }
         });
 
+        app.get('/shipments/estimated-time-arrival/:shipmentId', async (req: any, res: any) => {
+            try {
+                const timeArrival = await this.shipmentService.getEstimatedTimeArrival( req.params.shipmentId );
+                res.send({ estimatedTimeArrival: timeArrival ?? 'unknown' });
+            } catch(e) {
+                this.logger.error(`⚠️ Error getting time a rrival ${req.params.shipmentId}: ${e}`);
+                res.status(500).send('Internal Server Error'); // TODO: modify responses
+            }
+        });
+
         this.logger.info('routes for shipments successfully configured ✅');
         return app;
     }
