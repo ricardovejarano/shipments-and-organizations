@@ -115,6 +115,23 @@ export class ShipmenController implements ControllerDefinition {
             }
         });
 
+        app.get('/shipments/total-weight/:units', async (req: any, res: any) => {
+            const units = req.params.units;
+
+            try {
+                if (!units || !Object.values(WeightUnit).includes(units)) {
+                    this.logger.warn(`⚠️ Invalid units ${units}.  Unable to get total weight`);
+                    throw new Error('Invalid units');
+                }
+
+                const totalWeight = await this.shipmentService.getTotalWeight(units);
+                res.status(400).send({ totalWeight: totalWeight , units });
+            } catch(e) {
+                this.logger.error(`⚠️ Error getting total weight ${req.params.shipmentId}: ${e}`);
+                res.status(500).send('Internal Server Error'); // TODO: modify responses
+            }
+        });
+
         this.logger.info('routes for shipments successfully configured ✅');
         return app;
     }

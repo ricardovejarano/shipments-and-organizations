@@ -87,11 +87,15 @@ export class ShipmentService implements ShipmentServiceDefinition {
             select: { weight: true, unit: true },
         });
 
-        const totalWeight = record.reduce((acc, { weight, unit }) => {
-            return acc + this.weightConverterService.convert(weight, unit.toLocaleLowerCase() as WeightUnit, outputUnit);
-        }, 0);
+        return Math.round(this.toTotalWeightInUnits(record, outputUnit) * 100) / 100;
+    }
 
-        return totalWeight;
+    public async getTotalWeight(outputUnit: WeightUnit): Promise<number> {
+        const record = await this.repository.transportPacks.findMany({
+            select: { weight: true, unit: true },
+        });
+
+        return Math.round(this.toTotalWeightInUnits(record, outputUnit) * 100) / 100;
     }
 
     public async createOrUpdateShipment(shipment: Shipment): Promise<void> {
@@ -181,5 +185,11 @@ export class ShipmentService implements ShipmentServiceDefinition {
                unit: node.totalWeight.unit,
             }
         });
+    }
+
+    private toTotalWeightInUnits(record: Array<{ unit: string, weight: number }>, outputUnit: WeightUnit): number {
+        return record.reduce((acc, { weight, unit }) => {
+            return acc + this.weightConverterService.convert(weight, unit.toLocaleLowerCase() as WeightUnit, outputUnit);
+        }, 0);
     }
 }
