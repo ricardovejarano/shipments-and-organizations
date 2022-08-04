@@ -12,6 +12,8 @@ import { ShipmenController } from '../controllers/shipment.controller';
 import { OrganizationController } from '../controllers/organization.controller';
 import { OrganizationService } from '../services/organization.service';
 import { OrganizationServiceDefinition } from '../interfaces/organization.interface';
+import { WeightConverterDefinition } from '../interfaces/weight-converter';
+import { WeightConverterService } from '../services/weight-converter.service';
 
 
 export const container = new Container();
@@ -21,3 +23,4 @@ container.bind<ShipmentServiceDefinition>(SERVICE_TYPES.ShipmentService).to(Ship
 container.bind<OrganizationServiceDefinition>(SERVICE_TYPES.OrganizationService).to(OrganizationService);
 container.bind<ControllerDefinition>(SERVICE_TYPES.ShipmentController).to(ShipmenController);
 container.bind<ControllerDefinition>(SERVICE_TYPES.OrganizationController).to(OrganizationController);
+container.bind<WeightConverterDefinition>(SERVICE_TYPES.WeightConverterService).to(WeightConverterService);

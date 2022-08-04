@@ -6,4 +6,5 @@ export const SERVICE_TYPES = {
     ShipmentController: Symbol.for('ShipmentController'),
     OrganizationController: Symbol.for('OrganizationController'),
     DatabaseService: Symbol.for('DatabaseService'),
+    WeightConverterService: Symbol.for('WeightConverterService'),
 };

@@ -1,3 +1,4 @@
+import { injectable } from "inversify";
 import { WeightConverterDefinition } from "../interfaces/weight-converter";
 
 export enum WeightUnit {
@@ -8,6 +9,7 @@ export enum WeightUnit {
     STONES = 'stones',
 }
 
+@injectable()
 export class WeightConverterService implements WeightConverterDefinition {
 
     // took the math from: https://www.w3schools.com/howto/howto_js_weight_converter.asp
