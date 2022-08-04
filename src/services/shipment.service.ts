@@ -70,6 +70,17 @@ export class ShipmentService implements ShipmentServiceDefinition {
         return { referenceId: shipmentId, estimatedTimeArrival: record.estimatedTimeArrival ?? undefined, organizations, transportPacks: { nodes } };
     }
 
+    public async getOrganizationsOnShipment(shipmentId: string): Promise<Array<string>> {
+        const record = await this.repository.organizationsOnShipments.findMany({
+            where: { shipmentId },
+            select: { organizationId: true },
+        });
+
+        const keys = record.map(({ organizationId }) => organizationId);
+
+        return [...new Set(keys)];
+    }
+
     private async createOrganizationOnShipment(organizationCode: string, shipmentId: string): Promise<void> {
         const organization = await this.repository.organization.findFirst({
             where: { code: organizationCode }
