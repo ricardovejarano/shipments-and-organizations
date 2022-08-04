@@ -45,9 +45,15 @@ export class OrganizationController implements ControllerDefinition {
             }
         });
         
-        app.get('/organizations/:organizationId', (req: any, res: any) => {
-            // TODO: implement
-            res.send('Hello World from organizations!');
+        app.get('/organizations/:organizationId', async (req: any, res: any) => {
+            try {
+                const organization = await this.organizationService.getOrganizationById(req.params.organizationId);
+                this.logger.info(`💾 Organization ${organization?.orgId} found: ${JSON.stringify(organization)}`);
+                res.send(organization);
+            } catch(e) {
+                this.logger.error(`⚠️ Error processing Organization ${req.params.organizationId}: ${e}`);
+                res.status(500).send('Internal Server Error'); // TODO: modify responses
+            }
         });
 
         this.logger.info('routes for organizations successfully configured ✅');

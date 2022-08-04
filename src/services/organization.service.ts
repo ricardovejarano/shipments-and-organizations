@@ -31,4 +31,16 @@ export class OrganizationService implements OrganizationServiceDefinition{
             }
         });
     }
+
+    public async getOrganizationById(orgId: string): Promise<Organization | undefined> {
+        const organization = await this.repository.organization.findFirst({
+            where: { orgId }
+        });
+
+        if(!organization) {
+            return undefined;
+        }
+
+        return { orgId: organization.orgId, code: organization.code };
+    }
 }
