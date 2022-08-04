@@ -3,7 +3,7 @@ import { ShipmentServiceDefinition } from "../interfaces/shipment.interface";
 import { inject, injectable } from "inversify";
 import { Logger } from '../core/logger';
 import { SERVICE_TYPES } from '../types';
-import { Node, Shipment, TransportPack } from '../types/types';
+import { Node, Shipment } from '../types/types';
 import { PrismaClient } from '@prisma/client';
 
 @injectable()
@@ -32,24 +32,42 @@ export class ShipmentService implements ShipmentServiceDefinition {
             }
         });
 
-        // await Promise.all(shipment.organizations.map(organizationCode => this.createOrganizationOnShipment(organizationCode, shipment.referenceId)));
-        // await Promise.all(shipment.transportPacks.nodes.map(node => this.createTransportPacks(node, shipment.referenceId))); // check ounces
-
-        await Promise.all(shipment.organizations.map(organizationCode => this.createOrganizationOnShipment(organizationCode, shipment.referenceId)));
-
-        await Promise.all(shipment.transportPacks.nodes.map(node => this.createTransportPacks(node, shipment.referenceId))); 
+        // create records for OrganizationsOnShipment and transportPacks associated with this shipment
+        await Promise.all(
+            [
+                shipment.organizations.map(organizationCode => this.createOrganizationOnShipment(organizationCode, shipment.referenceId)),
+                shipment.transportPacks.nodes.map(node => this.createTransportPacks(node, shipment.referenceId))
+            ]
+        );
 
     }
 
-    public getShipmentById(): any[] {
-        this.logger.info('getShipmentById from in jected service');
-        return ['']
-    }
+    public async getShipmentById(shipmentId: string): Promise<Shipment | undefined> {
+        const record = await this.repository.shipment.findFirst({
+            where: { referenceId: shipmentId },
+        });
 
-    public toTransportPacks(transportPacks: any): TransportPack { // TODO: do not use any
-        return {
-            nodes: transportPacks.nodes.map((node: any) => ({ totalWeight: { weight:Number(node.totalWeight.weight), unit: node.totalWeight.unit } }))
+        if(!record) {
+            return;
         }
+
+        // assuming one node sent per shipment snapshot 
+        const transportPack = await this.repository.transportPacks.findFirst({
+            where: { shipmentId },
+            orderBy: {createdAt: 'desc'},
+        });
+
+        let nodes: Array<Node> = [];
+        if(transportPack){
+            nodes = [{ totalWeight: { weight: transportPack.weight.toString(), unit: transportPack.unit } }];
+        }
+
+        let organizations: Array<string> = [];
+        if(record.currentOrganizationCodes) {
+            organizations = record.currentOrganizationCodes.split(',');
+        }
+
+        return { referenceId: shipmentId, estimatedTimeArrival: record.estimatedTimeArrival ?? undefined, organizations, transportPacks: { nodes } };
     }
 
     private async createOrganizationOnShipment(organizationCode: string, shipmentId: string): Promise<void> {
@@ -61,7 +79,7 @@ export class ShipmentService implements ShipmentServiceDefinition {
             return;
         }
 
-        const shipments = await this.repository.organizationsOnShipments.findMany({
+        const shipments = await this.repository.organizationsOnShipments.findFirst({
             where: {
                 AND: [
                     { organizationId: organization.orgId },
@@ -75,7 +93,8 @@ export class ShipmentService implements ShipmentServiceDefinition {
             }
         });
 
-        if(shipments.length !== 0) {
+        // to avoid duplicates (this is another assumption though)
+        if(shipments) {
             this.logger.info(`Organization ${organizationCode} is already recorded on shipment ${shipmentId}`);
             return;
         }
@@ -94,21 +113,22 @@ export class ShipmentService implements ShipmentServiceDefinition {
             where: {
                 AND: [
                     { shipmentId },
-                    { weight: node.totalWeight.weight },
+                    { weight: Number(node.totalWeight.weight) },
                     { unit: node.totalWeight.unit },
                 ]
             }
         });
 
+        // same here... Avoid duplicates
         if(record) {
-            this.logger.info(`ℹ️ Transport pack with weight ${node.totalWeight.weight} ${node.totalWeight.unit} is already recorded on shipment ${shipmentId}`);
+            this.logger.info(`ℹ️  Transport pack with weight ${node.totalWeight.weight} ${node.totalWeight.unit} is already recorded on shipment ${shipmentId}`);
             return;
         }
 
         await this.repository.transportPacks.create({
             data: {
                shipmentId,
-               weight: node.totalWeight.weight,
+               weight: Number(node.totalWeight.weight),
                unit: node.totalWeight.unit,
             }
         });

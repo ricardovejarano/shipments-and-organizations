@@ -5,7 +5,7 @@ import { Logger } from '../core/logger';
 import { ControllerDefinition } from '../interfaces/controller.interface';
 import { inject, injectable } from 'inversify';
 import { ShipmentService } from '../services/shipment.service';
-import { Shipment } from 'src/types/types';
+import { Shipment, TransportPack } from '../types/types';
 
 @injectable()
 export class ShipmenController implements ControllerDefinition {
@@ -33,7 +33,7 @@ export class ShipmenController implements ControllerDefinition {
                 referenceId: req.body.referenceId,
                 estimatedTimeArrival,
                 organizations: req.body.organizations,
-                transportPacks: this.shipmentService.toTransportPacks(req.body.transportPacks),
+                transportPacks: req.body.transportPacks as TransportPack,
             }
 
             this.logger.info(`🗄️ Processing request for Shipment ${shipment.referenceId}`);
@@ -47,9 +47,15 @@ export class ShipmenController implements ControllerDefinition {
             }
         });
         
-        app.get('/shipments/:shipmentId', (req: any, res: any) => {
-            this.shipmentService.getShipmentById();
-            res.send('Hello World from shipments!');
+        app.get('/shipments/:shipmentId', async (req: any, res: any) => {
+            try {
+                const shipment = await this.shipmentService.getShipmentById( req.params.shipmentId );
+                res.send(shipment);
+            } catch(e) {
+                this.logger.error(`⚠️ Error getting Shipment ${req.params.shipmentId}: ${e}`);
+                res.status(500).send('Internal Server Error'); // TODO: modify responses
+            }
+            
         });
 
         this.logger.info('routes for shipments successfully configured ✅');

@@ -5,7 +5,7 @@ export type Organization = {
 
 export type Node = {
     totalWeight: {
-        weight: number,
+        weight: number | string,
         unit: string,
     }
 }

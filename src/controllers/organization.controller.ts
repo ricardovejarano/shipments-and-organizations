@@ -49,6 +49,7 @@ export class OrganizationController implements ControllerDefinition {
             try {
                 const organization = await this.organizationService.getOrganizationById(req.params.organizationId);
                 this.logger.info(`💾 Organization ${organization?.orgId} found: ${JSON.stringify(organization)}`);
+                // TODO: handle undefined organization
                 res.send(organization);
             } catch(e) {
                 this.logger.error(`⚠️ Error processing Organization ${req.params.organizationId}: ${e}`);
