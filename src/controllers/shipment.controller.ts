@@ -53,13 +53,13 @@ export class ShipmenController implements ControllerDefinition {
             try {
                 const shipmentId = req.params.shipmentId;
                 const shipment = await this.shipmentService.getShipmentById(shipmentId);
+                this.logger.info(`💾  ${JSON.stringify(shipment)}`);
                 res.json(shipment  ?? `shipment ${shipmentId} not found`);
             } catch(e) {
                 const errorMessage = `⚠️ Error getting Shipment ${req.params.shipmentId}: ${e instanceof Error ? e.message : '<uknown>'}`;
                 this.logger.error(errorMessage);
                 res.status(500).json({ statusCode: 500, message: errorMessage });
             }
-            
         });
 
         /**
@@ -68,6 +68,7 @@ export class ShipmenController implements ControllerDefinition {
         app.get('/shipments/organizations/:shipmentId', async (req: Request, res: Response) => {
             try {
                 const organizationsOnShipment = await this.shipmentService.getOrganizationsOnShipment( req.params.shipmentId );
+                this.logger.info(`${JSON.stringify(organizationsOnShipment)}`);
                 res.json(organizationsOnShipment);
             } catch(e) {
                 const errorMessage = `⚠️ Error getting organizations on shipment ${req.params.shipmentId}: ${e instanceof Error ? e.message : '<uknown>'}`;
@@ -79,6 +80,7 @@ export class ShipmenController implements ControllerDefinition {
         app.get('/shipments/organizations-with-code/:shipmentId', async (req: Request, res: Response) => {
             try {
                 const organizationsOnShipment = await this.shipmentService.getOrganizationsWithCodeOnShipment( req.params.shipmentId );
+                this.logger.info(`${JSON.stringify(organizationsOnShipment)}`);
                 res.json(organizationsOnShipment);
             } catch(e) {
                 const errorMessage = `⚠️ Error getting Organizations with code on Shipment ${req.params.shipmentId}: ${e instanceof Error ? e.message : '<uknown>'}`;
@@ -90,6 +92,7 @@ export class ShipmenController implements ControllerDefinition {
         app.get('/shipments/estimated-time-arrival/:shipmentId', async (req: Request, res: Response) => {
             try {
                 const timeArrival = await this.shipmentService.getEstimatedTimeArrival( req.params.shipmentId );
+                this.logger.info(timeArrival);
                 res.json({ estimatedTimeArrival: timeArrival ?? 'unknown' });
             } catch(e) {
                 const errorMessage = `⚠️ Error getting time arrival for thipment ${req.params.shipmentId}: ${e instanceof Error ? e.message : '<uknown>'}`;
@@ -107,11 +110,12 @@ export class ShipmenController implements ControllerDefinition {
                     throw new CustomError(400, `⚠️ Missing shipmentId or units`);
                 }
                 
-                if (!Object.values(WeightUnit).includes(units as WeightUnit)) {
+                if (!Object.values(WeightUnit).includes(units.toLowerCase() as WeightUnit)) {
                     throw new CustomError(400, `⚠️ Invalid units ${units}`);
                 }
 
                 const totalWeight = await this.shipmentService.getShipmentWeight(shipmentId, units as WeightUnit);
+                this.logger.info(`Total weight for Shipment ${shipmentId} is ${totalWeight} ${units}`);
                 res.status(200).json({ totalWeight: totalWeight , units });
             } catch(e) {
                 const statusCode = e.code ?? 500
@@ -125,11 +129,12 @@ export class ShipmenController implements ControllerDefinition {
             const units = req.params.units;
 
             try {
-                if (!units || !Object.values(WeightUnit).includes(units as WeightUnit)) {
+                if (!units || !Object.values(WeightUnit).includes(units.toLowerCase() as WeightUnit)) {
                     throw new CustomError(400, `Invalid units: ${units}.  Unable to get total weight`);
                 }
 
                 const totalWeight = await this.shipmentService.getTotalWeight(units as WeightUnit);
+                this.logger.info(`Total weight for all shipments is ${totalWeight} ${units}`);
                 res.status(200).json({ totalWeight: totalWeight , units });
             } catch(e) {
                 const statusCode = e.code ?? 500
