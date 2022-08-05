@@ -77,6 +77,9 @@ export class ShipmenController implements ControllerDefinition {
             }
         });
 
+        /**
+         *  Returns all the organizations with their codes tracked per each shipment
+         */   
         app.get('/shipments/organizations-with-code/:shipmentId', async (req: Request, res: Response) => {
             try {
                 const organizationsOnShipment = await this.shipmentService.getOrganizationsWithCodeOnShipment( req.params.shipmentId );
@@ -101,6 +104,9 @@ export class ShipmenController implements ControllerDefinition {
             }
         });
 
+        /**
+         * Returns the total weight tracked for the shipment in a given weight unit
+         */
         app.get('/shipments/shipment-weight/:shipmentId/:units', async (req: Request, res: Response) => {
             const shipmentId = req.params.shipmentId;
             const units = req.params.units;
@@ -125,6 +131,9 @@ export class ShipmenController implements ControllerDefinition {
             }
         });
 
+        /**
+         * Returns the total weight tracked for all the shipments in a given weight unit
+         */
         app.get('/shipments/total-weight/:units', async (req: Request, res: Response) => {
             const units = req.params.units;
 
