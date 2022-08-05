@@ -7,6 +7,7 @@ import { inject, injectable } from 'inversify';
 import { ShipmentService } from '../services/shipment.service';
 import { Shipment, TransportPack } from '../types/types';
 import { WeightUnit } from '../services/weight-converter.service';
+import { CustomError } from '../core/custom-error';
 
 @injectable()
 export class ShipmenController implements ControllerDefinition {
@@ -24,37 +25,39 @@ export class ShipmenController implements ControllerDefinition {
     public configureRoutes(app: express.Application): express.Application {
 
         app.post('/shipment', async (req: Request, res: Response) => {
-
-            if(!req.body.referenceId) {
-                this.logger.warn('⚠️ Missing referenceId.  Unable to create/update Shipment');
-                res.status(400).send('Bad Request'); // TODO: validate response;
-            }
-            const estimatedTimeArrival = req.body.estimatedTimeArrival ? new Date(req.body.estimatedTimeArrival) : undefined;
-            const shipment: Shipment = {
-                referenceId: req.body.referenceId,
-                estimatedTimeArrival,
-                organizations: req.body.organizations,
-                transportPacks: req.body.transportPacks as TransportPack,
-            }
-
-            this.logger.info(`🗄️ Processing request for Shipment ${shipment.referenceId}`);
             try {
+                if(!req.body.referenceId) {
+                    throw new CustomError(400, '⚠️ Missing referenceId.  Unable to create/update Shipment');
+                }
+                const estimatedTimeArrival = req.body.estimatedTimeArrival ? new Date(req.body.estimatedTimeArrival) : undefined;
+                const shipment: Shipment = {
+                    referenceId: req.body.referenceId,
+                    estimatedTimeArrival,
+                    organizations: req.body.organizations,
+                    transportPacks: req.body.transportPacks as TransportPack,
+                }
+
+                this.logger.info(`🗄️ Processing request for Shipment ${shipment.referenceId}`);
                 await this.shipmentService.createOrUpdateShipment(shipment);
                 this.logger.info(`💾 Shipment ${shipment.referenceId} successfully processed`);
-                res.status(200).send('Shipment successfully saved');
+                res.status(200).json('Shipment successfully saved');
             } catch(e) {
-                this.logger.error(`⚠️ Error processing Shipment ${shipment.referenceId}: ${e}`);
-                res.status(500).send('Internal Server Error'); // TODO: modify responses
+                const statusCode = e.code ?? 500
+                const errorMessage = `⚠️ Error processing Shipment: ${e instanceof Error ? e.message : '<uknown>'}`; 
+                this.logger.error(errorMessage);
+                res.status(statusCode).json({ statusCode, message: errorMessage });
             }
         });
         
         app.get('/shipments/:shipmentId', async (req: Request, res: Response) => {
             try {
-                const shipment = await this.shipmentService.getShipmentById( req.params.shipmentId );
-                res.send(shipment);
+                const shipmentId = req.params.shipmentId;
+                const shipment = await this.shipmentService.getShipmentById(shipmentId);
+                res.json(shipment  ?? `shipment ${shipmentId} not found`);
             } catch(e) {
-                this.logger.error(`⚠️ Error getting Shipment ${req.params.shipmentId}: ${e}`);
-                res.status(500).send('Internal Server Error'); // TODO: modify responses
+                const errorMessage = `⚠️ Error getting Shipment ${req.params.shipmentId}: ${e instanceof Error ? e.message : '<uknown>'}`;
+                this.logger.error(errorMessage);
+                res.status(500).json({ statusCode: 500, message: errorMessage });
             }
             
         });
@@ -65,30 +68,33 @@ export class ShipmenController implements ControllerDefinition {
         app.get('/shipments/organizations/:shipmentId', async (req: Request, res: Response) => {
             try {
                 const organizationsOnShipment = await this.shipmentService.getOrganizationsOnShipment( req.params.shipmentId );
-                res.send(organizationsOnShipment);
+                res.json(organizationsOnShipment);
             } catch(e) {
-                this.logger.error(`⚠️ Error getting Organizations on Shipment ${req.params.shipmentId}: ${e}`);
-                res.status(500).send('Internal Server Error'); // TODO: modify responses
+                const errorMessage = `⚠️ Error getting organizations on shipment ${req.params.shipmentId}: ${e instanceof Error ? e.message : '<uknown>'}`;
+                this.logger.error(errorMessage);
+                res.status(500).json({ statusCode: 500, message: errorMessage });
             }
         });
 
         app.get('/shipments/organizations-with-code/:shipmentId', async (req: Request, res: Response) => {
             try {
                 const organizationsOnShipment = await this.shipmentService.getOrganizationsWithCodeOnShipment( req.params.shipmentId );
-                res.send(organizationsOnShipment);
+                res.json(organizationsOnShipment);
             } catch(e) {
-                this.logger.error(`⚠️ Error getting Organizations with Coupon on Shipment ${req.params.shipmentId}: ${e}`);
-                res.status(500).send('Internal Server Error'); // TODO: modify responses
+                const errorMessage = `⚠️ Error getting Organizations with code on Shipment ${req.params.shipmentId}: ${e instanceof Error ? e.message : '<uknown>'}`;
+                this.logger.error(errorMessage);
+                res.status(500).json({ statusCode: 500, message: errorMessage });
             }
         });
 
         app.get('/shipments/estimated-time-arrival/:shipmentId', async (req: Request, res: Response) => {
             try {
                 const timeArrival = await this.shipmentService.getEstimatedTimeArrival( req.params.shipmentId );
-                res.send({ estimatedTimeArrival: timeArrival ?? 'unknown' });
+                res.json({ estimatedTimeArrival: timeArrival ?? 'unknown' });
             } catch(e) {
-                this.logger.error(`⚠️ Error getting time arrival ${req.params.shipmentId}: ${e}`);
-                res.status(500).send('Internal Server Error'); // TODO: modify responses
+                const errorMessage = `⚠️ Error getting time arrival for thipment ${req.params.shipmentId}: ${e instanceof Error ? e.message : '<uknown>'}`;
+                this.logger.error(errorMessage);
+                res.status(500).json({ statusCode: 500, message: errorMessage });
             }
         });
 
@@ -98,20 +104,20 @@ export class ShipmenController implements ControllerDefinition {
 
             try {
                 if(!shipmentId || !units) {
-                    this.logger.warn('⚠️ Missing shipmentId or units.  Unable to get total weight');
-                    throw new Error('Missing shipmentId or units');
+                    throw new CustomError(400, `⚠️ Missing shipmentId or units`);
                 }
                 
                 if (!Object.values(WeightUnit).includes(units as WeightUnit)) {
-                    this.logger.warn(`⚠️ Invalid units ${units}.  Unable to get total weight`);
-                    throw new Error('Invalid units');
+                    throw new CustomError(400, `⚠️ Invalid units ${units}`);
                 }
 
                 const totalWeight = await this.shipmentService.getShipmentWeight(shipmentId, units as WeightUnit);
-                res.status(400).send({ totalWeight: totalWeight , units });
+                res.status(200).json({ totalWeight: totalWeight , units });
             } catch(e) {
-                this.logger.error(`⚠️ Error getting total weight ${req.params.shipmentId}: ${e}`);
-                res.status(500).send('Internal Server Error'); // TODO: modify responses
+                const statusCode = e.code ?? 500
+                const errorMessage = `⚠️ Error getting total weight for shipment ${req.params.shipmentId}: ${e instanceof Error ? e.message : '<uknown>'}`; 
+                this.logger.error(errorMessage);
+                res.status(statusCode).json({ statusCode, message: errorMessage });
             }
         });
 
@@ -120,15 +126,16 @@ export class ShipmenController implements ControllerDefinition {
 
             try {
                 if (!units || !Object.values(WeightUnit).includes(units as WeightUnit)) {
-                    this.logger.warn(`⚠️ Invalid units ${units}.  Unable to get total weight`);
-                    throw new Error('Invalid units');
+                    throw new CustomError(400, `Invalid units: ${units}.  Unable to get total weight`);
                 }
 
                 const totalWeight = await this.shipmentService.getTotalWeight(units as WeightUnit);
-                res.status(400).send({ totalWeight: totalWeight , units });
+                res.status(200).json({ totalWeight: totalWeight , units });
             } catch(e) {
-                this.logger.error(`⚠️ Error getting total weight ${req.params.shipmentId}: ${e}`);
-                res.status(500).send('Internal Server Error'); // TODO: modify responses
+                const statusCode = e.code ?? 500
+                const errorMessage = `⚠️ Error getting total weight: ${e instanceof Error ? e.message : '<uknown>'}`; 
+                this.logger.error(errorMessage);
+                res.status(statusCode).json({ statusCode, message: errorMessage });
             }
         });
 

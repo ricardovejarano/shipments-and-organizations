@@ -6,6 +6,7 @@ import { SERVICE_TYPES } from '../types';
 import { inject, injectable } from 'inversify';
 import { OrganizationService } from '../services/organization.service';
 import { Organization } from '../types/types';
+import { CustomError } from '../core/custom-error';
 
 @injectable()
 export class OrganizationController implements ControllerDefinition {
@@ -23,37 +24,38 @@ export class OrganizationController implements ControllerDefinition {
     configureRoutes(app: express.Application): express.Application {
         
         app.post('/organization', async (req: Request, res: Response) => {
-            if(!req.body.id || !req.body.code) {
-                this.logger.warn('⚠️ Missing id or code.  Unable to create/update Organization');
-                res.status(400).send('Bad Request'); // TODO: validate response;
-            }
-
-            const organization: Organization = {
-                orgId: req.body.id,
-                code: req.body.code,
-            }
-
-            this.logger.info(`🗄️ Processing request to save Organization ${organization.orgId}`);
-
             try {
+                if(!req.body.id || !req.body.code) {
+                    throw new CustomError(400, '⚠️ Missing id or code.  Unable to create/update Organization');
+                }
+
+                const organization: Organization = {
+                    orgId: req.body.id,
+                    code: req.body.code,
+                }
+
+                this.logger.info(`🗄️ Processing request to save Organization ${organization.orgId}`);
+
                 await this.organizationService.createOrUpdateOrganization(organization);
                 this.logger.info(`💾 Organization ${organization.orgId} successfully processed`);
-                res.status(200).send('Organization successfully processed');
+                res.status(200).json('Organization successfully processed');
             } catch(e) {
-                this.logger.error(`⚠️ Error processing Organization ${organization.orgId}: ${e}`);
-                res.status(500).send('Internal Server Error'); // TODO: modify responses
+                const statusCode = e.code ?? 500
+                const errorMessage = `⚠️ Error processing organization: ${e instanceof Error ? e.message : '<uknown>'}`; 
+                this.logger.error(errorMessage);
+                res.status(statusCode).json({ statusCode, message: errorMessage });
             }
         });
         
         app.get('/organizations/:organizationId', async (req: Request, res: Response) => {
             try {
-                const organization = await this.organizationService.getOrganizationById(req.params.organizationId);
+                const organizationId = req.params.organizationId
+                const organization = await this.organizationService.getOrganizationById(organizationId);
                 this.logger.info(`💾 Organization ${organization?.orgId} found: ${JSON.stringify(organization)}`);
-                // TODO: handle undefined organization
-                res.send(organization);
+                res.json(organization ?? `organization ${organizationId} not found`);
             } catch(e) {
-                this.logger.error(`⚠️ Error processing Organization ${req.params.organizationId}: ${e}`);
-                res.status(500).send('Internal Server Error'); // TODO: modify responses
+                const errorMessage = `⚠️ Error gettuing organization ${req.params.organizationId}: ${e instanceof Error ? e.message : '<uknown>'}`; 
+                res.status(500).json({ statusCode: 500, message: errorMessage });
             }
         });
 
