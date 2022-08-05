@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import winston from 'winston';
 import { ControllerDefinition } from '../interfaces/controller.interface';
 import { Logger } from '../core/logger';
-import { SERVICE_TYPES } from '../types';
+import { SERVICE_TYPES } from '../types/types';
 import { inject, injectable } from 'inversify';
 import { OrganizationService } from '../services/organization.service';
 import { Organization } from '../types/types';

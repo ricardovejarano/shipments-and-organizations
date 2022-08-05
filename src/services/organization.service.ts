@@ -2,7 +2,7 @@ import winston from 'winston';
 import { inject, injectable } from 'inversify';
 import { OrganizationServiceDefinition } from '../interfaces/organization.interface';
 import { Logger } from '../core/logger';
-import { SERVICE_TYPES } from '../types';
+import { SERVICE_TYPES } from '../types/types';
 import { Organization } from '../types/types';
 import { Organization as OrganizationPrisma } from '.prisma/client';
 import { PrismaClient } from '@prisma/client';

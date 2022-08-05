@@ -3,7 +3,7 @@ import bodyParser from "body-parser";
 import express from 'express';
 import winston from "winston";
 import { Logger } from './core/logger';
-import { SERVICE_TYPES } from "./types";
+import { SERVICE_TYPES } from "./types/types";
 import { inject, injectable } from "inversify";
 import { MainDefinition } from "./interfaces/main.interface";
 import { ShipmenController } from './controllers/shipment.controller';

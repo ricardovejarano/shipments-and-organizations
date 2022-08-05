@@ -1,6 +1,6 @@
 import { Container } from 'inversify';
 import "reflect-metadata";
-import { SERVICE_TYPES } from '../types';
+import { SERVICE_TYPES } from '../types/types';
 import { ShipmentService } from '../services/shipment.service';
 import { ShipmentServiceDefinition } from '../interfaces/shipment.interface';
 import { Logger } from './logger';

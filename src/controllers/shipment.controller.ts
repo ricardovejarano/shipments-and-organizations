@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import winston from 'winston';
-import { SERVICE_TYPES } from '../types';
+import { SERVICE_TYPES } from '../types/types';
 import { Logger } from '../core/logger';
 import { ControllerDefinition } from '../interfaces/controller.interface';
 import { inject, injectable } from 'inversify';

@@ -2,7 +2,7 @@ import winston from 'winston';
 import { ShipmentServiceDefinition } from "../interfaces/shipment.interface";
 import { inject, injectable } from "inversify";
 import { Logger } from '../core/logger';
-import { SERVICE_TYPES } from '../types';
+import { SERVICE_TYPES } from '../types/types';
 import { Node, Organization, Shipment } from '../types/types';
 import { PrismaClient } from '@prisma/client';
 import { WeightConverterService, WeightUnit } from './weight-converter.service';
