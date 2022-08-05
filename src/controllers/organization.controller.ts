@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import winston from 'winston';
 import { ControllerDefinition } from '../interfaces/controller.interface';
 import { Logger } from '../core/logger';
@@ -22,7 +22,7 @@ export class OrganizationController implements ControllerDefinition {
 
     configureRoutes(app: express.Application): express.Application {
         
-        app.post('/organization', async (req: any, res: any) => {
+        app.post('/organization', async (req: Request, res: Response) => {
             if(!req.body.id || !req.body.code) {
                 this.logger.warn('⚠️ Missing id or code.  Unable to create/update Organization');
                 res.status(400).send('Bad Request'); // TODO: validate response;
@@ -45,7 +45,7 @@ export class OrganizationController implements ControllerDefinition {
             }
         });
         
-        app.get('/organizations/:organizationId', async (req: any, res: any) => {
+        app.get('/organizations/:organizationId', async (req: Request, res: Response) => {
             try {
                 const organization = await this.organizationService.getOrganizationById(req.params.organizationId);
                 this.logger.info(`💾 Organization ${organization?.orgId} found: ${JSON.stringify(organization)}`);

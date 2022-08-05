@@ -4,7 +4,6 @@ import { injectable } from 'inversify';
 
 @injectable()
 export class Logger implements LoggerDefinition {
-    constructor() {}
 
     public getLogger(serviceName: string): winston.Logger {
         const logger = winston.createLogger({

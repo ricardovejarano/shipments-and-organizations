@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import winston from 'winston';
 import { SERVICE_TYPES } from '../types';
 import { Logger } from '../core/logger';
@@ -23,7 +23,7 @@ export class ShipmenController implements ControllerDefinition {
 
     public configureRoutes(app: express.Application): express.Application {
 
-        app.post('/shipment', async (req: any, res: any) => {
+        app.post('/shipment', async (req: Request, res: Response) => {
 
             if(!req.body.referenceId) {
                 this.logger.warn('⚠️ Missing referenceId.  Unable to create/update Shipment');
@@ -48,7 +48,7 @@ export class ShipmenController implements ControllerDefinition {
             }
         });
         
-        app.get('/shipments/:shipmentId', async (req: any, res: any) => {
+        app.get('/shipments/:shipmentId', async (req: Request, res: Response) => {
             try {
                 const shipment = await this.shipmentService.getShipmentById( req.params.shipmentId );
                 res.send(shipment);
@@ -62,7 +62,7 @@ export class ShipmenController implements ControllerDefinition {
         /**
          * Returns all the organizations tracked per each shipment
          */
-        app.get('/shipments/organizations/:shipmentId', async (req: any, res: any) => {
+        app.get('/shipments/organizations/:shipmentId', async (req: Request, res: Response) => {
             try {
                 const organizationsOnShipment = await this.shipmentService.getOrganizationsOnShipment( req.params.shipmentId );
                 res.send(organizationsOnShipment);
@@ -72,7 +72,7 @@ export class ShipmenController implements ControllerDefinition {
             }
         });
 
-        app.get('/shipments/organizations-with-code/:shipmentId', async (req: any, res: any) => {
+        app.get('/shipments/organizations-with-code/:shipmentId', async (req: Request, res: Response) => {
             try {
                 const organizationsOnShipment = await this.shipmentService.getOrganizationsWithCodeOnShipment( req.params.shipmentId );
                 res.send(organizationsOnShipment);
@@ -82,7 +82,7 @@ export class ShipmenController implements ControllerDefinition {
             }
         });
 
-        app.get('/shipments/estimated-time-arrival/:shipmentId', async (req: any, res: any) => {
+        app.get('/shipments/estimated-time-arrival/:shipmentId', async (req: Request, res: Response) => {
             try {
                 const timeArrival = await this.shipmentService.getEstimatedTimeArrival( req.params.shipmentId );
                 res.send({ estimatedTimeArrival: timeArrival ?? 'unknown' });
@@ -92,7 +92,7 @@ export class ShipmenController implements ControllerDefinition {
             }
         });
 
-        app.get('/shipments/shipment-weight/:shipmentId/:units', async (req: any, res: any) => {
+        app.get('/shipments/shipment-weight/:shipmentId/:units', async (req: Request, res: Response) => {
             const shipmentId = req.params.shipmentId;
             const units = req.params.units;
 
@@ -101,13 +101,13 @@ export class ShipmenController implements ControllerDefinition {
                     this.logger.warn('⚠️ Missing shipmentId or units.  Unable to get total weight');
                     throw new Error('Missing shipmentId or units');
                 }
-    
-                if (!Object.values(WeightUnit).includes(units)) {
+                
+                if (!Object.values(WeightUnit).includes(units as WeightUnit)) {
                     this.logger.warn(`⚠️ Invalid units ${units}.  Unable to get total weight`);
                     throw new Error('Invalid units');
                 }
 
-                const totalWeight = await this.shipmentService.getShipmentWeight(shipmentId, units);
+                const totalWeight = await this.shipmentService.getShipmentWeight(shipmentId, units as WeightUnit);
                 res.status(400).send({ totalWeight: totalWeight , units });
             } catch(e) {
                 this.logger.error(`⚠️ Error getting total weight ${req.params.shipmentId}: ${e}`);
@@ -115,16 +115,16 @@ export class ShipmenController implements ControllerDefinition {
             }
         });
 
-        app.get('/shipments/total-weight/:units', async (req: any, res: any) => {
+        app.get('/shipments/total-weight/:units', async (req: Request, res: Response) => {
             const units = req.params.units;
 
             try {
-                if (!units || !Object.values(WeightUnit).includes(units)) {
+                if (!units || !Object.values(WeightUnit).includes(units as WeightUnit)) {
                     this.logger.warn(`⚠️ Invalid units ${units}.  Unable to get total weight`);
                     throw new Error('Invalid units');
                 }
 
-                const totalWeight = await this.shipmentService.getTotalWeight(units);
+                const totalWeight = await this.shipmentService.getTotalWeight(units as WeightUnit);
                 res.status(400).send({ totalWeight: totalWeight , units });
             } catch(e) {
                 this.logger.error(`⚠️ Error getting total weight ${req.params.shipmentId}: ${e}`);

@@ -9,6 +9,7 @@ import { MainDefinition } from "./interfaces/main.interface";
 import { ShipmenController } from './controllers/shipment.controller';
 import { OrganizationController } from './controllers/organization.controller';
 import { PrismaClient } from '@prisma/client';
+import { Middlewares } from './middlewares/middlewares';
 
 @injectable()
 export class Main implements MainDefinition {
@@ -16,6 +17,7 @@ export class Main implements MainDefinition {
   private shipmentController: ShipmenController;
   private organizationController: OrganizationController;
   private repository: PrismaClient;
+  private middleware: Middlewares;
 
   constructor(
     @inject(SERVICE_TYPES.Logger) winstonLogger: Logger,
@@ -26,12 +28,14 @@ export class Main implements MainDefinition {
     this.shipmentController = shipmentController;
     this.organizationController = organizationController;
     this.repository = new PrismaClient();
+    this.middleware = new Middlewares();
   }
 
   public async bootstrap(): Promise<void> {
     this.logger.info('🛠️  Starting application... ');
     const app: express.Application = express();
     app.use(bodyParser.json());
+    app.use(this.middleware.trackRequest);
     const port = process.env.PORT ?? 3000;
     this.shipmentController.configureRoutes(app);
     this.organizationController.configureRoutes(app);
