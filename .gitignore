@@ -1,3 +1,4 @@
 /node_modules
 /logs
 /pgadmin4-servers.json
+/dist
