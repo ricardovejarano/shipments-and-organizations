@@ -1,5 +1,8 @@
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
+import { SERVICE_TYPES } from "../types/types";
+import winston from "winston";
 import { WeightConverterDefinition } from "../interfaces/weight-converter";
+import { Logger } from "../core/logger";
 
 export enum WeightUnit {
     KILOGRAMS = 'kilograms',
@@ -11,6 +14,11 @@ export enum WeightUnit {
 
 @injectable()
 export class WeightConverterService implements WeightConverterDefinition {
+    private logger: winston.Logger;
+
+    constructor(@inject(SERVICE_TYPES.Logger) winstonLogger: Logger) {
+        this.logger = winstonLogger.getLogger(`[${WeightConverterService.name}]`);
+    }
 
     // took the math from: https://www.w3schools.com/howto/howto_js_weight_converter.asp
     public convert(weight: number, sourceUnit: WeightUnit, outputUnit: WeightUnit): number {
@@ -20,28 +28,33 @@ export class WeightConverterService implements WeightConverterDefinition {
             return weight;
         }
 
-        switch (sourceUnit) {
-            case WeightUnit.KILOGRAMS:
-                calculatedWeight =  this.fromKilograms(weight, outputUnit);
-                break;
-            case WeightUnit.OUNCES:
-                calculatedWeight = this.fromOunces(weight, outputUnit);
-                break;
-            case WeightUnit.POUNDS:
-                calculatedWeight = this.fromPounds(weight, outputUnit);
-                break;
-            case WeightUnit.GRAMS:
-                calculatedWeight = this.fromGrams(weight, outputUnit);
-                break;
-            case WeightUnit.STONES:
-                calculatedWeight = this.fromStones(weight, outputUnit);
-                break;
-            default:
-                calculatedWeight = weight;
-                break;
+        try {
+            switch (sourceUnit) {
+                case WeightUnit.KILOGRAMS:
+                    calculatedWeight =  this.fromKilograms(weight, outputUnit);
+                    break;
+                case WeightUnit.OUNCES:
+                    calculatedWeight = this.fromOunces(weight, outputUnit);
+                    break;
+                case WeightUnit.POUNDS:
+                    calculatedWeight = this.fromPounds(weight, outputUnit);
+                    break;
+                case WeightUnit.GRAMS:
+                    calculatedWeight = this.fromGrams(weight, outputUnit);
+                    break;
+                case WeightUnit.STONES:
+                    calculatedWeight = this.fromStones(weight, outputUnit);
+                    break;
+                default:
+                    throw new Error(`Unsupported source unit: ${sourceUnit}`);
+            }
+    
+            return Number(calculatedWeight.toFixed(2));
+        } catch(e) {
+            this.logger.error(`Error converting weight: ${e.message}`);
+            return 0;
         }
 
-        return Number(calculatedWeight.toFixed(2));
     }
 
     private fromKilograms(weight: number, unit: WeightUnit): number {
@@ -55,7 +68,7 @@ export class WeightConverterService implements WeightConverterDefinition {
             case WeightUnit.STONES:
                 return this.kilogramsToStones(weight);
             default:
-                return 0;
+                throw new Error(`Unsupported outputUnit unit: ${unit}`);
         }
     }
 
@@ -86,7 +99,7 @@ export class WeightConverterService implements WeightConverterDefinition {
             case WeightUnit.STONES:
                 return this.ouncesToStones(weight);
             default:
-                return 0;
+                throw new Error(`Unsupported outputUnit unit: ${unit}`);
         }
     }
 
@@ -117,7 +130,7 @@ export class WeightConverterService implements WeightConverterDefinition {
             case WeightUnit.STONES:
                 return this.poundsToStones(weight);
             default:
-                return 0;
+                throw new Error(`Unsupported outputUnit unit: ${unit}`);
         }
     }
 
@@ -148,7 +161,7 @@ export class WeightConverterService implements WeightConverterDefinition {
             case WeightUnit.STONES:
                 return this.gramsToStones(weight);
             default:
-                return 0;
+                throw new Error(`Unsupported outputUnit unit: ${unit}`);
         }
     }
 
@@ -179,7 +192,7 @@ export class WeightConverterService implements WeightConverterDefinition {
             case WeightUnit.GRAMS:
                 return this.stonesToGrams(weight);
             default:
-                return 0;
+                throw new Error(`Unsupported outputUnit unit: ${unit}`);
         }
     }
 

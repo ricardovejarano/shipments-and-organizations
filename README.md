@@ -26,6 +26,11 @@ __Then, you will be able to log into the [pgAdmin](http://localhost:5433/)__ wit
 ### Start in dev
 > npm run start:dev
 
+### Run tests
+> npm run test:cov
+
+__Just added tests for weight-converter__  😅
+
 ____
 ## TODO: 
 - Improve express response mechanism.  Standardization.

@@ -1,10 +1,18 @@
 import 'reflect-metadata';
+import { Logger } from 'src/core/logger';
+import winston from "winston";
 import { WeightConverterService, WeightUnit } from '../../../src/services/weight-converter.service';
+
 
 describe("test add function", () => {
   let service: WeightConverterService;
-  beforeAll(() => { 
-    service = new WeightConverterService();
+  beforeAll(() => {
+    const logger: Logger = {
+        getLogger: () => {
+            return { error: () => { return '' } } as unknown as winston.Logger;
+        },
+    } 
+    service = new WeightConverterService(logger);
   })
   it('should calculate conversion from Kilograms to...', () => {
     expect(service.convert(1000, WeightUnit.KILOGRAMS, WeightUnit.GRAMS)).toBe(1000000);
@@ -44,4 +52,16 @@ describe("test add function", () => {
   it('should return same weight if source and target units are the same', () => {
     expect(service.convert(1000, WeightUnit.KILOGRAMS, WeightUnit.KILOGRAMS)).toBe(1000);
   });
+
+  it('should return 0 for unsupported sourceUnit', () => {
+    expect(service.convert(1000, 'unknown' as WeightUnit, WeightUnit.KILOGRAMS)).toBe(0);
+  });
+
+  it('should return 0 on unsupported outputUnits', () => {
+    expect(service.convert(1000, WeightUnit.KILOGRAMS, 'unknown' as WeightUnit)).toBe(0);
+    expect(service.convert(1000, WeightUnit.GRAMS, 'unknown' as WeightUnit)).toBe(0);
+    expect(service.convert(1000, WeightUnit.OUNCES, 'unknown' as WeightUnit)).toBe(0);
+    expect(service.convert(1000, WeightUnit.POUNDS, 'unknown' as WeightUnit)).toBe(0);
+    expect(service.convert(1000, WeightUnit.STONES, 'unknown' as WeightUnit)).toBe(0);
+  })
 });
