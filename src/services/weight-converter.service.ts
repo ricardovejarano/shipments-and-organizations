@@ -14,25 +14,34 @@ export class WeightConverterService implements WeightConverterDefinition {
 
     // took the math from: https://www.w3schools.com/howto/howto_js_weight_converter.asp
     public convert(weight: number, sourceUnit: WeightUnit, outputUnit: WeightUnit): number {
-        
+        let calculatedWeight: number;
+
         if(sourceUnit === outputUnit) {
             return weight;
         }
 
         switch (sourceUnit) {
             case WeightUnit.KILOGRAMS:
-                return this.fromKilograms(weight, outputUnit);
+                calculatedWeight =  this.fromKilograms(weight, outputUnit);
+                break;
             case WeightUnit.OUNCES:
-                return this.fromOunces(weight, outputUnit);
+                calculatedWeight = this.fromOunces(weight, outputUnit);
+                break;
             case WeightUnit.POUNDS:
-                return this.fromPounds(weight, outputUnit);
+                calculatedWeight = this.fromPounds(weight, outputUnit);
+                break;
             case WeightUnit.GRAMS:
-                return this.fromGrams(weight, outputUnit);
+                calculatedWeight = this.fromGrams(weight, outputUnit);
+                break;
             case WeightUnit.STONES:
-                return this.fromStones(weight, outputUnit);
+                calculatedWeight = this.fromStones(weight, outputUnit);
+                break;
             default:
-                return 0;
+                calculatedWeight = weight;
+                break;
         }
+
+        return Number(calculatedWeight.toFixed(2));
     }
 
     private fromKilograms(weight: number, unit: WeightUnit): number {
